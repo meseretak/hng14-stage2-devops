@@ -204,7 +204,7 @@ jobs:
 
       - name: Create .env for compose
         run: |
-          echo "REDIS_PASSWORD=testpassword123" >> .env
+          echo "REDIS_PASSWORD=testpassword123" > .env
           echo "FRONTEND_PORT=3000" >> .env
 
       - name: Start full stack
