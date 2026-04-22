@@ -261,6 +261,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: integration
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    env:
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
     steps:
       - uses: actions/checkout@v4
 
@@ -269,20 +272,15 @@ jobs:
           echo "${{ secrets.DEPLOY_KEY }}" > /tmp/deploy_key
           chmod 600 /tmp/deploy_key
 
-      - name: Rolling deploy via SSH
+      - name: Write deploy script
         run: |
-          ssh -i /tmp/deploy_key \
-              -o StrictHostKeyChecking=no \
-              "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
-              'bash -s' << 'EOF'
+          cat > /tmp/deploy.sh << 'SCRIPT'
           set -e
           cd ~/hng14-stage2-devops
           git pull origin main
 
-          # Start new container alongside old one
           docker compose up -d --build --no-deps api
 
-          # Wait up to 60s for health check to pass
           TIMEOUT=60
           ELAPSED=0
           CONTAINER=$(docker compose ps -q api | head -1)
@@ -302,8 +300,16 @@ jobs:
           echo "Health check failed within 60s — aborting, old container remains"
           docker compose up -d
           exit 1
-          EOF
+          SCRIPT
+
+      - name: Rolling deploy via SSH
+        run: |
+          ssh -i /tmp/deploy_key \
+              -o StrictHostKeyChecking=no \
+              -o ConnectTimeout=30 \
+              "$DEPLOY_USER@$DEPLOY_HOST" \
+              'bash -s' < /tmp/deploy.sh
 
       - name: Cleanup SSH key
         if: always()
-        run: rm -f /tmp/deploy_key
+        run: rm -f /tmp/deploy_key /tmp/deploy.sh
