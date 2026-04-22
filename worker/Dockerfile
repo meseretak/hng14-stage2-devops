@@ -12,11 +12,11 @@ RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
 
 WORKDIR /app
 COPY --from=builder /install /usr/local
-COPY worker.py .
+COPY worker.py healthcheck.py ./
 
 USER appuser
 
 HEALTHCHECK --interval=20s --timeout=5s --start-period=10s --retries=3 \
-  CMD python -c "import redis, os; r=redis.Redis(host=os.environ.get('REDIS_HOST','redis'),password=os.environ.get('REDIS_PASSWORD',None)); r.ping()"
+  CMD ["python", "healthcheck.py"]
 
 CMD ["python", "worker.py"]
