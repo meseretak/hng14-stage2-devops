@@ -1,0 +1,14 @@
+.env
+*.env
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+htmlcov/
+coverage.xml
+*.egg-info/
+dist/
+build/
+.coverage
+trivy-results*.sarif
