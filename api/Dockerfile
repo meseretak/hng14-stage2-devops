@@ -9,7 +9,7 @@ RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 FROM python:3.12-alpine
 
 # Upgrade all OS packages to patch known CVEs
-RUN apk upgrade --no-cache && apk add --no-cache wget
+RUN apk upgrade --no-cache && apk add --no-cache wget~=1
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
