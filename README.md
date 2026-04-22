@@ -72,7 +72,7 @@ frontend     Up              0.0.0.0:3000->3000/tcp
 
 ### 5. Open the dashboard
 
-Navigate to [http://localhost:3000](http://localhost:3000) in your browser.
+Navigate to [http://136.115.145.233:3000/](http://136.115.145.233:3000/) in your browser.
 
 Click "Submit New Job" — you should see the job appear with status `queued`, then transition to `completed` within a few seconds.
 
