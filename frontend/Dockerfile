@@ -8,6 +8,9 @@ RUN npm ci --omit=dev
 # ---- final stage ----
 FROM node:20-alpine
 
+# Upgrade all OS packages to patch known CVEs
+RUN apk upgrade --no-cache
+
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 WORKDIR /app
@@ -20,6 +23,6 @@ USER appuser
 EXPOSE 3000
 
 HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -qO- http://localhost:3000/health || exit 1
+  CMD ["wget", "-qO-", "http://localhost:3000/health"]
 
 CMD ["node", "app.js"]

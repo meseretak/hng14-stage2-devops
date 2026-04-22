@@ -1,14 +1,17 @@
 # syntax=docker/dockerfile:1
-FROM python:3.12-slim AS builder
+FROM python:3.12-alpine AS builder
 
 WORKDIR /build
 COPY requirements.txt .
 RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 # ---- final stage ----
-FROM python:3.12-slim
+FROM python:3.12-alpine
 
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+# Upgrade all OS packages to patch known CVEs
+RUN apk upgrade --no-cache
+
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 WORKDIR /app
 COPY --from=builder /install /usr/local
